@@ -5,7 +5,7 @@ namespace FileIntegrityChecker {
 	public class FileComparator : GLib.Object {
 		public GLib.List<string> dir1_files_list;
 		public GLib.List<string> dir2_files_list;
-		public GLib.List<int> dir_compare_result;
+		public GLib.List<int> dir_compare_int_result;
 		public string directory1;
 		public string directory2;
 		public FileComparator (string dir1, string dir2);
@@ -18,6 +18,6 @@ namespace FileIntegrityChecker {
 	public class FileUtils : GLib.Object {
 		public FileUtils ();
 		public static string calculate_checksum (string file_path);
-		public static bool compare_files (string file1, string file2);
+		public static bool compare_files_by_bytes (string file1, string file2);
 	}
 }

@@ -153,7 +153,7 @@ file_integrity_checker_file_comparator_compare_directories (FileIntegrityChecker
 						_tmp13_ = self->dir2_files_list;
 						_tmp14_ = g_list_nth_data (_tmp13_, (guint) index);
 						ok = file_integrity_checker_file_comparator_check_file_integrity (self, _tmp12_, (const gchar*) _tmp14_);
-						self->dir_compare_result = g_list_append (self->dir_compare_result, (gpointer) ((gintptr) ok));
+						self->dir_compare_int_result = g_list_append (self->dir_compare_int_result, (gpointer) ((gintptr) ok));
 					}
 					_tmp15_ = index;
 					index = _tmp15_ + 1;
@@ -338,32 +338,51 @@ file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFile
 		}
 		_tmp3_ = log_stream;
 		if (_tmp3_ != NULL) {
-			GList* _tmp4_;
-			GFileOutputStream* _tmp7_;
-			_tmp4_ = self->dir_compare_result;
+			gint index = 0;
+			GFileOutputStream* _tmp4_;
+			gsize _tmp5_ = 0UL;
+			GList* _tmp6_;
+			GFileOutputStream* _tmp12_;
+			index = 0;
+			_tmp4_ = log_stream;
+			g_output_stream_printf ((GOutputStream*) _tmp4_, &_tmp5_, NULL, &_inner_error0_, "Legend: 1 - success copy, 0 - failed copy(error)");
+			bwritten = _tmp5_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_object_unref0 (log_stream);
+				_g_object_unref0 (file);
+				goto __catch0_g_error;
+			}
+			_tmp6_ = self->dir_compare_int_result;
 			{
 				GList* item_collection = NULL;
 				GList* item_it = NULL;
-				item_collection = _tmp4_;
+				item_collection = _tmp6_;
 				for (item_it = item_collection; item_it != NULL; item_it = item_it->next) {
 					gint item = 0;
 					item = (gint) ((gintptr) item_it->data);
 					{
-						GFileOutputStream* _tmp5_;
-						gsize _tmp6_ = 0UL;
-						_tmp5_ = log_stream;
-						g_output_stream_printf ((GOutputStream*) _tmp5_, &_tmp6_, NULL, &_inner_error0_, "%d\n", item);
-						bwritten = _tmp6_;
+						GFileOutputStream* _tmp7_;
+						GList* _tmp8_;
+						gconstpointer _tmp9_;
+						gsize _tmp10_ = 0UL;
+						gint _tmp11_;
+						_tmp7_ = log_stream;
+						_tmp8_ = self->dir1_files_list;
+						_tmp9_ = g_list_nth_data (_tmp8_, (guint) index);
+						g_output_stream_printf ((GOutputStream*) _tmp7_, &_tmp10_, NULL, &_inner_error0_, "%d  -  %s\n", item, (const gchar*) _tmp9_);
+						bwritten = _tmp10_;
 						if (G_UNLIKELY (_inner_error0_ != NULL)) {
 							_g_object_unref0 (log_stream);
 							_g_object_unref0 (file);
 							goto __catch0_g_error;
 						}
+						_tmp11_ = index;
+						index = _tmp11_ + 1;
 					}
 				}
 			}
-			_tmp7_ = log_stream;
-			g_output_stream_close ((GOutputStream*) _tmp7_, NULL, &_inner_error0_);
+			_tmp12_ = log_stream;
+			g_output_stream_close ((GOutputStream*) _tmp12_, NULL, &_inner_error0_);
 			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				_g_object_unref0 (log_stream);
 				_g_object_unref0 (file);
@@ -379,13 +398,13 @@ file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFile
 	__catch0_g_error:
 	{
 		GError* e = NULL;
-		GError* _tmp8_;
-		const gchar* _tmp9_;
+		GError* _tmp13_;
+		const gchar* _tmp14_;
 		e = _inner_error0_;
 		_inner_error0_ = NULL;
-		_tmp8_ = e;
-		_tmp9_ = _tmp8_->message;
-		g_print ("Error while generating log: %s\n", _tmp9_);
+		_tmp13_ = e;
+		_tmp14_ = _tmp13_->message;
+		g_print ("Error while generating log: %s\n", _tmp14_);
 		_g_error_free0 (e);
 	}
 	__finally0:
@@ -410,7 +429,7 @@ file_integrity_checker_file_comparator_instance_init (FileIntegrityCheckerFileCo
 {
 	self->dir1_files_list = NULL;
 	self->dir2_files_list = NULL;
-	self->dir_compare_result = NULL;
+	self->dir_compare_int_result = NULL;
 }
 
 static void
@@ -422,7 +441,7 @@ file_integrity_checker_file_comparator_finalize (GObject * obj)
 	_g_free0 (self->directory2);
 	(self->dir1_files_list == NULL) ? NULL : (self->dir1_files_list = (_g_list_free__g_free0_ (self->dir1_files_list), NULL));
 	(self->dir2_files_list == NULL) ? NULL : (self->dir2_files_list = (_g_list_free__g_free0_ (self->dir2_files_list), NULL));
-	(self->dir_compare_result == NULL) ? NULL : (self->dir_compare_result = (g_list_free (self->dir_compare_result), NULL));
+	(self->dir_compare_int_result == NULL) ? NULL : (self->dir_compare_int_result = (g_list_free (self->dir_compare_int_result), NULL));
 	G_OBJECT_CLASS (file_integrity_checker_file_comparator_parent_class)->finalize (obj);
 }
 
@@ -539,8 +558,8 @@ file_integrity_checker_file_utils_calculate_checksum (const gchar* file_path)
 }
 
 gboolean
-file_integrity_checker_file_utils_compare_files (const gchar* file1,
-                                                 const gchar* file2)
+file_integrity_checker_file_utils_compare_files_by_bytes (const gchar* file1,
+                                                          const gchar* file2)
 {
 	gboolean _tmp16_ = FALSE;
 	GError* _inner_error0_ = NULL;

@@ -6,7 +6,7 @@ namespace FileIntegrityChecker {
         public string directory2;
         public List<string> dir1_files_list = new List<string>();
         public List<string> dir2_files_list = new List<string>();
-        public List<int> dir_compare_result = new List<int>();
+        public List<int> dir_compare_int_result = new List<int>();
         
         
         public FileComparator(string dir1, string dir2) { //ctor
@@ -29,7 +29,7 @@ namespace FileIntegrityChecker {
                 foreach (string file in this.dir1_files_list) {
                     if (index < this.dir2_files_list.length()) {
                         bool ok = check_file_integrity(file, this.dir2_files_list.nth_data(index));
-                        dir_compare_result.append((int)ok);
+                        dir_compare_int_result.append((int)ok);
                     }
                     index++;
                 }
@@ -69,7 +69,6 @@ namespace FileIntegrityChecker {
 
 
 
-
         public bool check_file_integrity(string file1, string file2) { //control summ checker
             var sum1 = FileUtils.calculate_checksum(file1);
             var sum2 = FileUtils.calculate_checksum(file2);
@@ -85,9 +84,11 @@ namespace FileIntegrityChecker {
                 size_t bwritten = 0;
                 FileOutputStream log_stream = file.replace(null, false, GLib.FileCreateFlags.NONE, null); 
                 if (log_stream != null) {
-                    foreach (var item in dir_compare_result) {
-                        //  log_stream.write("huy!!!!!\n".data, null);
-                        log_stream.printf(out bwritten,null,"%d\n", item);
+                    int index = 0;
+                    log_stream.printf(out bwritten,null,"Legend: 1 - success copy, 0 - failed copy(error)\n");
+                    foreach (var item in dir_compare_int_result) {
+                        log_stream.printf(out bwritten,null,"%d  -  %s\n", item, dir1_files_list.nth_data(index));
+                        index++;
                     }
                     log_stream.close(null); 
                 } else {
@@ -125,7 +126,7 @@ namespace FileIntegrityChecker {
 
 
 
-        public static bool compare_files(string file1, string file2) {
+        public static bool compare_files_by_bytes(string file1, string file2) {
             try {
                 FileStream stream1 = FileStream.open(file1, "rb");
                 FileStream stream2 = FileStream.open(file2, "rb");

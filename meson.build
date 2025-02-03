@@ -3,6 +3,7 @@ project('git_vala', ['c', 'vala'],
   default_options : ['warning_level=3'])
 
 dependencies = [
+  dependency('gtk4'),
   dependency('gio-2.0'),
   dependency('gee-0.8'),
   dependency('gobject-2.0'),
@@ -10,9 +11,8 @@ dependencies = [
 ]
 
 executable('git_vala',
-           'main.vala',
            'md5-compare.vala',
            'md5-compare.c',
-           'project.vala',
+           'CBF.vala',
            dependencies: dependencies,
            install : true)

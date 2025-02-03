@@ -49,7 +49,7 @@ struct _FileIntegrityCheckerFileComparator {
 	gchar* directory2;
 	GList* dir1_files_list;
 	GList* dir2_files_list;
-	GList* dir_compare_result;
+	GList* dir_compare_int_result;
 };
 
 struct _FileIntegrityCheckerFileComparatorClass {
@@ -83,8 +83,8 @@ VALA_EXTERN void file_integrity_checker_file_comparator_generate_report (FileInt
 VALA_EXTERN GType file_integrity_checker_file_utils_get_type (void) G_GNUC_CONST ;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (FileIntegrityCheckerFileUtils, g_object_unref)
 VALA_EXTERN gchar* file_integrity_checker_file_utils_calculate_checksum (const gchar* file_path);
-VALA_EXTERN gboolean file_integrity_checker_file_utils_compare_files (const gchar* file1,
-                                                          const gchar* file2);
+VALA_EXTERN gboolean file_integrity_checker_file_utils_compare_files_by_bytes (const gchar* file1,
+                                                                   const gchar* file2);
 VALA_EXTERN FileIntegrityCheckerFileUtils* file_integrity_checker_file_utils_new (void);
 VALA_EXTERN FileIntegrityCheckerFileUtils* file_integrity_checker_file_utils_construct (GType object_type);
 
