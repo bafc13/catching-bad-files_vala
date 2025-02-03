@@ -7,6 +7,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <gio/gio.h>
 #include <stdio.h>
 
 #if !defined(VALA_STRICT_C)
@@ -26,12 +27,13 @@ static GParamSpec* file_integrity_checker_file_comparator_properties[FILE_INTEGR
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_dir_close0(var) ((var == NULL) ? NULL : (var = (g_dir_close (var), NULL)))
 #define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
-#define _fclose0(var) ((var == NULL) ? NULL : (var = (fclose (var), NULL)))
+#define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 enum  {
 	FILE_INTEGRITY_CHECKER_FILE_UTILS_0_PROPERTY,
 	FILE_INTEGRITY_CHECKER_FILE_UTILS_NUM_PROPERTIES
 };
 static GParamSpec* file_integrity_checker_file_utils_properties[FILE_INTEGRITY_CHECKER_FILE_UTILS_NUM_PROPERTIES];
+#define _fclose0(var) ((var == NULL) ? NULL : (var = (fclose (var), NULL)))
 #define _g_checksum_free0(var) ((var == NULL) ? NULL : (var = (g_checksum_free (var), NULL)))
 
 static gpointer file_integrity_checker_file_comparator_parent_class = NULL;
@@ -85,37 +87,32 @@ file_integrity_checker_file_comparator_new (const gchar* dir1,
 void
 file_integrity_checker_file_comparator_compare_directories (FileIntegrityCheckerFileComparator* self)
 {
-	GDir* opened_directory1 = NULL;
-	const gchar* _tmp0_;
-	GDir* _tmp1_;
-	GDir* opened_directory2 = NULL;
-	const gchar* _tmp2_;
-	GDir* _tmp3_;
 	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->directory1;
-	_tmp1_ = g_dir_open (_tmp0_, (guint) 0, &_inner_error0_);
-	opened_directory1 = _tmp1_;
-	if (G_UNLIKELY (_inner_error0_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
-		g_clear_error (&_inner_error0_);
-		return;
-	}
-	_tmp2_ = self->directory2;
-	_tmp3_ = g_dir_open (_tmp2_, (guint) 0, &_inner_error0_);
-	opened_directory2 = _tmp3_;
-	if (G_UNLIKELY (_inner_error0_ != NULL)) {
-		_g_dir_close0 (opened_directory1);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
-		g_clear_error (&_inner_error0_);
-		return;
-	}
 	{
+		GDir* opened_directory1 = NULL;
+		const gchar* _tmp0_;
+		GDir* _tmp1_;
+		GDir* opened_directory2 = NULL;
+		const gchar* _tmp2_;
+		GDir* _tmp3_;
 		gboolean _tmp4_ = FALSE;
 		GDir* _tmp5_;
-		gboolean _tmp9_ = FALSE;
-		gboolean _tmp10_ = FALSE;
-		GList* _tmp11_;
+		gint index = 0;
+		GList* _tmp9_;
+		_tmp0_ = self->directory1;
+		_tmp1_ = g_dir_open (_tmp0_, (guint) 0, &_inner_error0_);
+		opened_directory1 = _tmp1_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch0_g_error;
+		}
+		_tmp2_ = self->directory2;
+		_tmp3_ = g_dir_open (_tmp2_, (guint) 0, &_inner_error0_);
+		opened_directory2 = _tmp3_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_dir_close0 (opened_directory1);
+			goto __catch0_g_error;
+		}
 		_tmp5_ = opened_directory1;
 		if (_tmp5_ != NULL) {
 			GDir* _tmp6_;
@@ -132,87 +129,61 @@ file_integrity_checker_file_comparator_compare_directories (FileIntegrityChecker
 			_tmp8_ = self->directory2;
 			file_integrity_checker_file_comparator_traverse_directory (self, _tmp8_, 1);
 		}
-		_tmp11_ = self->dir1_files_list;
-		if (g_list_length (_tmp11_) != ((guint) 0)) {
-			GList* _tmp12_;
-			_tmp12_ = self->dir2_files_list;
-			_tmp10_ = g_list_length (_tmp12_) != ((guint) 0);
-		} else {
-			_tmp10_ = FALSE;
-		}
-		if (_tmp10_) {
-			GList* _tmp13_;
-			GList* _tmp14_;
-			_tmp13_ = self->dir1_files_list;
-			_tmp14_ = self->dir2_files_list;
-			_tmp9_ = g_list_length (_tmp13_) == g_list_length (_tmp14_);
-		} else {
-			_tmp9_ = FALSE;
-		}
-		if (_tmp9_) {
-			GList* _tmp15_;
-			_tmp15_ = self->dir1_files_list;
-			{
-				GList* file_collection = NULL;
-				GList* file_it = NULL;
-				file_collection = _tmp15_;
-				for (file_it = file_collection; file_it != NULL; file_it = file_it->next) {
-					gchar* _tmp16_;
-					gchar* file = NULL;
-					_tmp16_ = g_strdup ((const gchar*) file_it->data);
-					file = _tmp16_;
-					{
-						gint index = 0;
-						GList* _tmp17_;
-						const gchar* _tmp18_;
-						GList* _tmp19_;
-						_tmp17_ = self->dir1_files_list;
-						_tmp18_ = file;
-						index = g_list_index (_tmp17_, _tmp18_);
-						_tmp19_ = self->dir2_files_list;
-						if (((guint) index) < g_list_length (_tmp19_)) {
-							gboolean ok = FALSE;
-							const gchar* _tmp20_;
-							GList* _tmp21_;
-							gconstpointer _tmp22_;
-							_tmp20_ = file;
-							_tmp21_ = self->dir2_files_list;
-							_tmp22_ = g_list_nth_data (_tmp21_, (guint) index);
-							ok = file_integrity_checker_file_comparator_check_file_integrity (self, _tmp20_, (const gchar*) _tmp22_);
-							self->dir_compare_result = g_list_append (self->dir_compare_result, (gpointer) ((gintptr) ok));
-						}
-						_g_free0 (file);
+		index = 0;
+		_tmp9_ = self->dir1_files_list;
+		{
+			GList* file_collection = NULL;
+			GList* file_it = NULL;
+			file_collection = _tmp9_;
+			for (file_it = file_collection; file_it != NULL; file_it = file_it->next) {
+				gchar* _tmp10_;
+				gchar* file = NULL;
+				_tmp10_ = g_strdup ((const gchar*) file_it->data);
+				file = _tmp10_;
+				{
+					GList* _tmp11_;
+					gint _tmp15_;
+					_tmp11_ = self->dir2_files_list;
+					if (((guint) index) < g_list_length (_tmp11_)) {
+						gboolean ok = FALSE;
+						const gchar* _tmp12_;
+						GList* _tmp13_;
+						gconstpointer _tmp14_;
+						_tmp12_ = file;
+						_tmp13_ = self->dir2_files_list;
+						_tmp14_ = g_list_nth_data (_tmp13_, (guint) index);
+						ok = file_integrity_checker_file_comparator_check_file_integrity (self, _tmp12_, (const gchar*) _tmp14_);
+						self->dir_compare_result = g_list_append (self->dir_compare_result, (gpointer) ((gintptr) ok));
 					}
+					_tmp15_ = index;
+					index = _tmp15_ + 1;
+					_g_free0 (file);
 				}
 			}
-		} else {
-			g_print ("ERROR while comparing directories");
 		}
+		_g_dir_close0 (opened_directory2);
+		_g_dir_close0 (opened_directory1);
 	}
 	goto __finally0;
 	__catch0_g_error:
 	{
 		GError* e = NULL;
-		GError* _tmp23_;
-		const gchar* _tmp24_;
+		GError* _tmp16_;
+		const gchar* _tmp17_;
 		e = _inner_error0_;
 		_inner_error0_ = NULL;
-		_tmp23_ = e;
-		_tmp24_ = _tmp23_->message;
-		g_print ("Error: %s\n", _tmp24_);
+		_tmp16_ = e;
+		_tmp17_ = _tmp16_->message;
+		g_print ("Error: %s\n", _tmp17_);
 		_g_error_free0 (e);
 	}
 	__finally0:
 	if (G_UNLIKELY (_inner_error0_ != NULL)) {
-		_g_dir_close0 (opened_directory2);
-		_g_dir_close0 (opened_directory1);
 		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
 		g_clear_error (&_inner_error0_);
 		return;
 	}
 	file_integrity_checker_file_comparator_generate_report (self);
-	_g_dir_close0 (opened_directory2);
-	_g_dir_close0 (opened_directory1);
 }
 
 void
@@ -279,7 +250,8 @@ file_integrity_checker_file_comparator_traverse_directory (FileIntegrityCheckerF
 				_tmp13_ = full_path;
 				_tmp14_ = g_strdup (_tmp13_);
 				self->dir1_files_list = g_list_append (self->dir1_files_list, _tmp14_);
-			} else {
+			}
+			if (num == 1) {
 				const gchar* _tmp15_;
 				gchar* _tmp16_;
 				_tmp15_ = full_path;
@@ -344,34 +316,84 @@ file_integrity_checker_file_comparator_check_file_integrity (FileIntegrityChecke
 void
 file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFileComparator* self)
 {
-	FILE* log_stream = NULL;
-	FILE* _tmp0_;
-	FILE* _tmp1_;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = g_fopen ("log.txt", "rw");
-	log_stream = _tmp0_;
-	_tmp1_ = log_stream;
-	if (_tmp1_ != NULL) {
-		GList* _tmp2_;
-		_tmp2_ = self->dir_compare_result;
-		{
-			GList* item_collection = NULL;
-			GList* item_it = NULL;
-			item_collection = _tmp2_;
-			for (item_it = item_collection; item_it != NULL; item_it = item_it->next) {
-				gint item = 0;
-				item = (gint) ((gintptr) item_it->data);
-				{
-					FILE* _tmp3_;
-					_tmp3_ = log_stream;
-					fprintf (_tmp3_, "%d\n", item);
+	{
+		GFile* file = NULL;
+		GFile* _tmp0_;
+		gsize bwritten = 0UL;
+		GFileOutputStream* log_stream = NULL;
+		GFile* _tmp1_;
+		GFileOutputStream* _tmp2_;
+		GFileOutputStream* _tmp3_;
+		_tmp0_ = g_file_new_for_path ("log.txt");
+		file = _tmp0_;
+		bwritten = (gsize) 0;
+		_tmp1_ = file;
+		_tmp2_ = g_file_replace (_tmp1_, NULL, FALSE, G_FILE_CREATE_NONE, NULL, &_inner_error0_);
+		log_stream = _tmp2_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_object_unref0 (file);
+			goto __catch0_g_error;
+		}
+		_tmp3_ = log_stream;
+		if (_tmp3_ != NULL) {
+			GList* _tmp4_;
+			GFileOutputStream* _tmp7_;
+			_tmp4_ = self->dir_compare_result;
+			{
+				GList* item_collection = NULL;
+				GList* item_it = NULL;
+				item_collection = _tmp4_;
+				for (item_it = item_collection; item_it != NULL; item_it = item_it->next) {
+					gint item = 0;
+					item = (gint) ((gintptr) item_it->data);
+					{
+						GFileOutputStream* _tmp5_;
+						gsize _tmp6_ = 0UL;
+						_tmp5_ = log_stream;
+						g_output_stream_printf ((GOutputStream*) _tmp5_, &_tmp6_, NULL, &_inner_error0_, "%d\n", item);
+						bwritten = _tmp6_;
+						if (G_UNLIKELY (_inner_error0_ != NULL)) {
+							_g_object_unref0 (log_stream);
+							_g_object_unref0 (file);
+							goto __catch0_g_error;
+						}
+					}
 				}
 			}
+			_tmp7_ = log_stream;
+			g_output_stream_close ((GOutputStream*) _tmp7_, NULL, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_object_unref0 (log_stream);
+				_g_object_unref0 (file);
+				goto __catch0_g_error;
+			}
+		} else {
+			g_print ("Error while generating log, can't open log.txt\n");
 		}
-	} else {
-		g_print ("Error while generating log, cant make log.txt");
+		_g_object_unref0 (log_stream);
+		_g_object_unref0 (file);
 	}
-	_fclose0 (log_stream);
+	goto __finally0;
+	__catch0_g_error:
+	{
+		GError* e = NULL;
+		GError* _tmp8_;
+		const gchar* _tmp9_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp8_ = e;
+		_tmp9_ = _tmp8_->message;
+		g_print ("Error while generating log: %s\n", _tmp9_);
+		_g_error_free0 (e);
+	}
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return;
+	}
 }
 
 static void

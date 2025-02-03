@@ -3,14 +3,16 @@ project('git_vala', ['c', 'vala'],
   default_options : ['warning_level=3'])
 
 dependencies = [
-  dependency('gtk4'),
+  dependency('gio-2.0'),
   dependency('gee-0.8'),
-  dependency('glib-2.0'),
   dependency('gobject-2.0'),
-  dependency('gio-2.0')
+  dependency('glib-2.0')
 ]
 
 executable('git_vala',
+           'main.vala',
+           'md5-compare.vala',
+           'md5-compare.c',
            'project.vala',
-          dependencies: dependencies,
+           dependencies: dependencies,
            install : true)

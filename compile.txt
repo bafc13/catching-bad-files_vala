@@ -1,0 +1,4 @@
+valac --library md5-compare -H md5-compare.h -C md5-compare.vala --pkg gio-2.0 --pkg glib-2.0
+gcc -shared -fPIC -o libmd5-compare.so md5-compare.c $(pkg-config --cflags --libs gio-2.0 glib-2.0)
+valac --pkg gio-2.0 -X -I. -X -L. -X -lmd5-compare -o main main.vala md5-compare.vapi --basedir ./
+LD_LIBRARY_PATH=$PWD ./main /usr/bin/correct_dir/bin /usr/bin/incorrect_dir/bin
