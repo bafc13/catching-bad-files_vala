@@ -80,7 +80,7 @@ namespace FileIntegrityChecker {
 
         public void generate_report() { // log creation
             try {
-                File file = File.new_for_path("log.txt");
+                File file = File.new_for_path("log");
                 size_t bwritten = 0;
                 FileOutputStream log_stream = file.replace(null, false, GLib.FileCreateFlags.NONE, null); 
                 if (log_stream != null) {
@@ -92,7 +92,7 @@ namespace FileIntegrityChecker {
                     }
                     log_stream.close(null); 
                 } else {
-                    print("Error while generating log, can't open log.txt\n");
+                    print("Error while generating log, can't open log\n");
                 }
             } catch (Error e) {
                 print("Error while generating log: %s\n", e.message);
