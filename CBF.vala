@@ -61,12 +61,6 @@ public class CBF : Gtk.Application {
         toolbar.append (start_compare_button);
 
         
-
-        //  this.text_view = new Gtk.TextView () {
-        //      editable = false,
-        //      cursor_visible = false,
-        //  };
-
         var scroll_view = new Gtk.ScrolledWindow () {
             hscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
@@ -74,20 +68,14 @@ public class CBF : Gtk.Application {
             valign = Gtk.Align.FILL,
             child = this.text_view
         };
-
         var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
         vbox.append (toolbar);
         vbox_for_files = new Gtk.Box (Gtk.Orientation.VERTICAL, 0){
 
         };
-        
-        //  vbox_for_files.append (text_view);
-        //  vbox.append (hbox);
+
         vbox.append (scroll_view);
-
         scroll_view.set_child (vbox_for_files);
-
-
 
         this.window.child = vbox;
         this.window.present ();
@@ -153,19 +141,15 @@ public class CBF : Gtk.Application {
                     print("Error while generating log, can't open log\n");
                 }
                 int temp_index = 0;
-                foreach(var temp_file in dir2_files_list){ //по индексу из массива индексов ошибок пихаем красный цвет
+                foreach(var temp_file in dir2_files_list){
                     var button = new Button.with_label (temp_file){
                         valign = Gtk.Align.BASELINE_CENTER
                     };
-                    
-                    var css_provider = new CssProvider();
                     if(error_files_indexes.find (temp_index) != null){
-                        css_provider.load_from_data((uint8[])"#green_button { background-color: green; color: white; }");
+                        button.add_css_class("destructive-action");
                     } else {
-                        css_provider.load_from_data((uint8[])"#red_button { background-color: red; color: white; }");
+                        button.add_css_class("suggested-action");
                     }
-                    button.get_style_context().add_provider(css_provider, STYLE_PROVIDER_PRIORITY_USER);
-
                     this.vbox_for_files.append (button);
                     temp_index++;
                 }
@@ -173,11 +157,8 @@ public class CBF : Gtk.Application {
             }
             
         } catch (Error e) {
-            print("Error while generating log: %s\n", e.message);
+            print("Error while comparing directories: %s\n", e.message);
         }
-
-
-            
         }
 
         public static int main (string[] args) {
