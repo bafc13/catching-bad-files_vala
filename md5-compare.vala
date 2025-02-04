@@ -84,8 +84,18 @@ namespace FileIntegrityChecker {
                 size_t bwritten = 0;
                 FileOutputStream log_stream = file.replace(null, false, GLib.FileCreateFlags.NONE, null); 
                 if (log_stream != null) {
+                    int join_0_count = 0;
+
+                    foreach (var item in dir_compare_int_result){
+                        if(item == 0){
+                            join_0_count++;
+                        }
+                    }
                     int index = 0;
+                    
                     log_stream.printf(out bwritten,null,"Legend: 1 - success copy, 0 - failed copy(error)\n");
+                    log_stream.printf(out bwritten,null,"Founded errors - %d\n",join_0_count);
+                    log_stream.printf(out bwritten, null, "Files count - %d\n",dir_compare_int_result.length());
                     foreach (var item in dir_compare_int_result) {
                         log_stream.printf(out bwritten,null,"%d  -  %s\n", item, dir1_files_list.nth_data(index));
                         index++;

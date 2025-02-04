@@ -326,7 +326,7 @@ file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFile
 		GFile* _tmp1_;
 		GFileOutputStream* _tmp2_;
 		GFileOutputStream* _tmp3_;
-		_tmp0_ = g_file_new_for_path ("log.txt");
+		_tmp0_ = g_file_new_for_path ("log");
 		file = _tmp0_;
 		bwritten = (gsize) 0;
 		_tmp1_ = file;
@@ -338,58 +338,100 @@ file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFile
 		}
 		_tmp3_ = log_stream;
 		if (_tmp3_ != NULL) {
+			gint join_0_count = 0;
+			GList* _tmp4_;
 			gint index = 0;
-			GFileOutputStream* _tmp4_;
-			gsize _tmp5_ = 0UL;
-			GList* _tmp6_;
-			GFileOutputStream* _tmp12_;
+			GFileOutputStream* _tmp6_;
+			gsize _tmp7_ = 0UL;
+			GFileOutputStream* _tmp8_;
+			gsize _tmp9_ = 0UL;
+			GFileOutputStream* _tmp10_;
+			GList* _tmp11_;
+			gsize _tmp12_ = 0UL;
+			GList* _tmp13_;
+			GFileOutputStream* _tmp19_;
+			join_0_count = 0;
+			_tmp4_ = self->dir_compare_int_result;
+			{
+				GList* item_collection = NULL;
+				GList* item_it = NULL;
+				item_collection = _tmp4_;
+				for (item_it = item_collection; item_it != NULL; item_it = item_it->next) {
+					gint item = 0;
+					item = (gint) ((gintptr) item_it->data);
+					{
+						if (item == 0) {
+							gint _tmp5_;
+							_tmp5_ = join_0_count;
+							join_0_count = _tmp5_ + 1;
+						}
+					}
+				}
+			}
 			index = 0;
-			_tmp4_ = log_stream;
-			g_output_stream_printf ((GOutputStream*) _tmp4_, &_tmp5_, NULL, &_inner_error0_, "Legend: 1 - success copy, 0 - failed copy(error)");
-			bwritten = _tmp5_;
+			_tmp6_ = log_stream;
+			g_output_stream_printf ((GOutputStream*) _tmp6_, &_tmp7_, NULL, &_inner_error0_, "Legend: 1 - success copy, 0 - failed copy(error)\n");
+			bwritten = _tmp7_;
 			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				_g_object_unref0 (log_stream);
 				_g_object_unref0 (file);
 				goto __catch0_g_error;
 			}
-			_tmp6_ = self->dir_compare_int_result;
+			_tmp8_ = log_stream;
+			g_output_stream_printf ((GOutputStream*) _tmp8_, &_tmp9_, NULL, &_inner_error0_, "Founded errors - %d\n", join_0_count);
+			bwritten = _tmp9_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_object_unref0 (log_stream);
+				_g_object_unref0 (file);
+				goto __catch0_g_error;
+			}
+			_tmp10_ = log_stream;
+			_tmp11_ = self->dir_compare_int_result;
+			g_output_stream_printf ((GOutputStream*) _tmp10_, &_tmp12_, NULL, &_inner_error0_, "Files count - %d\n", g_list_length (_tmp11_));
+			bwritten = _tmp12_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_object_unref0 (log_stream);
+				_g_object_unref0 (file);
+				goto __catch0_g_error;
+			}
+			_tmp13_ = self->dir_compare_int_result;
 			{
 				GList* item_collection = NULL;
 				GList* item_it = NULL;
-				item_collection = _tmp6_;
+				item_collection = _tmp13_;
 				for (item_it = item_collection; item_it != NULL; item_it = item_it->next) {
 					gint item = 0;
 					item = (gint) ((gintptr) item_it->data);
 					{
-						GFileOutputStream* _tmp7_;
-						GList* _tmp8_;
-						gconstpointer _tmp9_;
-						gsize _tmp10_ = 0UL;
-						gint _tmp11_;
-						_tmp7_ = log_stream;
-						_tmp8_ = self->dir1_files_list;
-						_tmp9_ = g_list_nth_data (_tmp8_, (guint) index);
-						g_output_stream_printf ((GOutputStream*) _tmp7_, &_tmp10_, NULL, &_inner_error0_, "%d  -  %s\n", item, (const gchar*) _tmp9_);
-						bwritten = _tmp10_;
+						GFileOutputStream* _tmp14_;
+						GList* _tmp15_;
+						gconstpointer _tmp16_;
+						gsize _tmp17_ = 0UL;
+						gint _tmp18_;
+						_tmp14_ = log_stream;
+						_tmp15_ = self->dir1_files_list;
+						_tmp16_ = g_list_nth_data (_tmp15_, (guint) index);
+						g_output_stream_printf ((GOutputStream*) _tmp14_, &_tmp17_, NULL, &_inner_error0_, "%d  -  %s\n", item, (const gchar*) _tmp16_);
+						bwritten = _tmp17_;
 						if (G_UNLIKELY (_inner_error0_ != NULL)) {
 							_g_object_unref0 (log_stream);
 							_g_object_unref0 (file);
 							goto __catch0_g_error;
 						}
-						_tmp11_ = index;
-						index = _tmp11_ + 1;
+						_tmp18_ = index;
+						index = _tmp18_ + 1;
 					}
 				}
 			}
-			_tmp12_ = log_stream;
-			g_output_stream_close ((GOutputStream*) _tmp12_, NULL, &_inner_error0_);
+			_tmp19_ = log_stream;
+			g_output_stream_close ((GOutputStream*) _tmp19_, NULL, &_inner_error0_);
 			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				_g_object_unref0 (log_stream);
 				_g_object_unref0 (file);
 				goto __catch0_g_error;
 			}
 		} else {
-			g_print ("Error while generating log, can't open log.txt\n");
+			g_print ("Error while generating log, can't open log\n");
 		}
 		_g_object_unref0 (log_stream);
 		_g_object_unref0 (file);
@@ -398,13 +440,13 @@ file_integrity_checker_file_comparator_generate_report (FileIntegrityCheckerFile
 	__catch0_g_error:
 	{
 		GError* e = NULL;
-		GError* _tmp13_;
-		const gchar* _tmp14_;
+		GError* _tmp20_;
+		const gchar* _tmp21_;
 		e = _inner_error0_;
 		_inner_error0_ = NULL;
-		_tmp13_ = e;
-		_tmp14_ = _tmp13_->message;
-		g_print ("Error while generating log: %s\n", _tmp14_);
+		_tmp20_ = e;
+		_tmp21_ = _tmp20_->message;
+		g_print ("Error while generating log: %s\n", _tmp21_);
 		_g_error_free0 (e);
 	}
 	__finally0:

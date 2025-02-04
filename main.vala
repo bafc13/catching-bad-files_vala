@@ -10,7 +10,7 @@ int main(string []argv){
     //  char *filename_1 = argv[0]; //from where u gona check control summ
     //  char *filename_2 = argv[1]; //file that u need to compare
     comparator.compare_directories();
-    stdout.printf("Checkout for report in file log.txt");
+    stdout.printf("\nCheckout for report in file log");
 
     return 0;
 }

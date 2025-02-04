@@ -1,7 +1,8 @@
 using Gtk;
 
+
 public class CBF : Gtk.Application {
-    //  private Gtk.TextView text_view;
+    private Gtk.TextView text_view;
     private Gtk.ApplicationWindow window;
     private Gtk.Box vbox_for_files;
     private string dir1_path;
@@ -9,9 +10,8 @@ public class CBF : Gtk.Application {
     public List<string> dir2_files_list;
 
     public CBF () {
-        Object (application_id: "CBF");
+        Object (application_id: "bafc13.CBF.test");
     }
-
 
 
     public override void activate () {
@@ -39,10 +39,12 @@ public class CBF : Gtk.Application {
 
 
         var open_dir1_button = new Gtk.Button ();
+        open_dir1_button.add_css_class ("button");
         open_dir1_button.child = open_dir1_button_box;
         open_dir1_button.clicked.connect(on_open_dir1_button_clicked);
 
         var open_dir2_button = new Gtk.Button ();
+        open_dir2_button.add_css_class ("button");
         open_dir2_button.child = open_dir2_button_box;
         open_dir2_button.clicked.connect(on_open_dir2_button_clicked);                
     
@@ -50,9 +52,10 @@ public class CBF : Gtk.Application {
         var start_compare_button_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
         start_compare_button_box.append (start_compare_label);
         var start_compare_button = new Gtk.Button ();
+        start_compare_button.add_css_class ("button");
         start_compare_button.child = start_compare_button_box;
-        start_compare_button.clicked.connect (on_start_compare_button_clicked);
-        
+        start_compare_button.clicked.connect(on_start_compare_button_clicked);
+         
         toolbar.append (open_dir1_button);
         toolbar.append (open_dir2_button);
         toolbar.append (start_compare_button);
@@ -68,13 +71,17 @@ public class CBF : Gtk.Application {
             hscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vexpand = true,
-            valign = Gtk.Align.FILL
-            //  child = this.text_view,
+            valign = Gtk.Align.FILL,
+            child = this.text_view
         };
 
         var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
         vbox.append (toolbar);
-        vbox_for_files = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+        vbox_for_files = new Gtk.Box (Gtk.Orientation.VERTICAL, 0){
+
+        };
+        
+        //  vbox_for_files.append (text_view);
         //  vbox.append (hbox);
         vbox.append (scroll_view);
 
@@ -102,7 +109,8 @@ public class CBF : Gtk.Application {
             }
         });
     }
-//давать посмотреть только плохие файлы, чтобы не делать 1877 кнопок
+
+
     private void on_open_dir2_button_clicked () {
         var file_dialog = new Gtk.FileDialog () {
             title = "Open Bad Directory"
@@ -118,51 +126,63 @@ public class CBF : Gtk.Application {
     }
 
     private void on_start_compare_button_clicked () {
-        if(dir1_path != null && dir2_path != null){
-            FileIntegrityChecker.FileComparator comparator = new FileIntegrityChecker.FileComparator(dir1_path,dir2_path);
-            comparator.compare_directories();
-            this.dir2_files_list = comparator.dir2_files_list;
+        try{
+            if(dir1_path != null && dir2_path != null){
+                FileIntegrityChecker.FileComparator comparator = new FileIntegrityChecker.FileComparator(dir1_path,dir2_path);
+                comparator.compare_directories();
+                this.dir2_files_list = new List<string>();
+                foreach (var item in comparator.dir2_files_list){
+                    dir2_files_list.append (item);
+                }
 
-         
-            File file = File.new_for_path("log");
-                size_t bwritten = 0;
-                FileInputStream log_stream = file.read (null);
-                //  log_stream.
-                //   = file.(null);
-                if (log_stream != null) {
-                    int index = 0;
-                    //  log_stream.
-                    //  log_stream.printf(out bwritten,null,"Legend: 1 - success copy, 0 - failed copy(error)\n");
-                    foreach (var item in dir_compare_int_result) {
-                        log_stream.printf(out bwritten,null,"%d  -  %s\n", item, dir1_files_list.nth_data(index));
-                        index++;
+                List<int> error_files_indexes = new List<int>();
+            
+                File file = File.new_for_path("log");
+                FileIOStream log_iostream = file.open_readwrite (null);
+                DataInputStream log_data_iostream = new DataInputStream (log_iostream.input_stream);
+                if (log_data_iostream != null) {
+                    string? line;
+                    int temp_index = 0;
+                    while ((line = log_data_iostream.read_line(null,null)) != null) {
+                        if(line[0] == '0'){
+                            error_files_indexes.append (temp_index - 3);
+                        }
+                        temp_index++;
                     }
-                    log_stream.close(null); 
                 } else {
                     print("Error while generating log, can't open log\n");
                 }
-            } catch (Error e) {
-                print("Error while generating log: %s\n", e.message);
+                int temp_index = 0;
+                foreach(var temp_file in dir2_files_list){ //по индексу из массива индексов ошибок пихаем красный цвет
+                    var button = new Button.with_label (temp_file){
+                        valign = Gtk.Align.BASELINE_CENTER
+                    };
+                    
+                    var css_provider = new CssProvider();
+                    if(error_files_indexes.find (temp_index) != null){
+                        css_provider.load_from_data((uint8[])"#green_button { background-color: green; color: white; }");
+                    } else {
+                        css_provider.load_from_data((uint8[])"#red_button { background-color: red; color: white; }");
+                    }
+                    button.get_style_context().add_provider(css_provider, STYLE_PROVIDER_PRIORITY_USER);
+
+                    this.vbox_for_files.append (button);
+                    temp_index++;
+                }
+                
             }
+            
+        } catch (Error e) {
+            print("Error while generating log: %s\n", e.message);
         }
 
 
-            foreach(var file in dir2_files_list){
-                var button = new Button.with_label (file);
-                this.vbox_for_files.append (button);
-
-            }
+            
         }
+
+        public static int main (string[] args) {
+            var app = new CBF ();
+            return app.run (args);
+        }
+
     }
-    
-
-    
-
-
-
-
-    public static int main (string[] args) {
-        var app = new CBF ();
-        return app.run (args);
-    }
-}
