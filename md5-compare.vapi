@@ -16,8 +16,9 @@ namespace FileIntegrityChecker {
 	}
 	[CCode (cheader_filename = "md5-compare.h")]
 	public class FileUtils : GLib.Object {
+		public GLib.List<int> error_lines;
 		public FileUtils ();
 		public static string calculate_checksum (string file_path);
-		public static bool compare_files_by_bytes (string file1, string file2);
+		public string compare_files_lines (string file1_path, string file2_path);
 	}
 }

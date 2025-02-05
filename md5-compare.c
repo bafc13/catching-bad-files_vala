@@ -35,6 +35,7 @@ enum  {
 static GParamSpec* file_integrity_checker_file_utils_properties[FILE_INTEGRITY_CHECKER_FILE_UTILS_NUM_PROPERTIES];
 #define _fclose0(var) ((var == NULL) ? NULL : (var = (fclose (var), NULL)))
 #define _g_checksum_free0(var) ((var == NULL) ? NULL : (var = (g_checksum_free (var), NULL)))
+#define _g_string_free0(var) ((var == NULL) ? NULL : (var = (g_string_free (var, TRUE), NULL)))
 
 static gpointer file_integrity_checker_file_comparator_parent_class = NULL;
 static gpointer file_integrity_checker_file_utils_parent_class = NULL;
@@ -43,6 +44,7 @@ static void _g_free0_ (gpointer var);
 static inline void _g_list_free__g_free0_ (GList* self);
 static void file_integrity_checker_file_comparator_finalize (GObject * obj);
 static GType file_integrity_checker_file_comparator_get_type_once (void);
+static void file_integrity_checker_file_utils_finalize (GObject * obj);
 static GType file_integrity_checker_file_utils_get_type_once (void);
 
 static void
@@ -599,142 +601,237 @@ file_integrity_checker_file_utils_calculate_checksum (const gchar* file_path)
 	return result;
 }
 
-gboolean
-file_integrity_checker_file_utils_compare_files_by_bytes (const gchar* file1,
-                                                          const gchar* file2)
+static const gchar*
+string_to_string (const gchar* self)
 {
-	gboolean _tmp16_ = FALSE;
+	const gchar* result;
+	g_return_val_if_fail (self != NULL, NULL);
+	result = self;
+	return result;
+}
+
+gchar*
+file_integrity_checker_file_utils_compare_files_lines (FileIntegrityCheckerFileUtils* self,
+                                                       const gchar* file1_path,
+                                                       const gchar* file2_path)
+{
+	GString* _result_ = NULL;
+	GString* _tmp0_;
+	GString* _tmp44_;
+	const gchar* _tmp45_;
+	gchar* _tmp46_;
 	GError* _inner_error0_ = NULL;
-	gboolean result;
-	g_return_val_if_fail (file1 != NULL, FALSE);
-	g_return_val_if_fail (file2 != NULL, FALSE);
+	gchar* result;
+	g_return_val_if_fail (self != NULL, NULL);
+	g_return_val_if_fail (file1_path != NULL, NULL);
+	g_return_val_if_fail (file2_path != NULL, NULL);
+	_tmp0_ = g_string_new ("");
+	_result_ = _tmp0_;
 	{
-		FILE* stream1 = NULL;
-		FILE* _tmp0_;
-		FILE* stream2 = NULL;
-		FILE* _tmp1_;
-		guint8* buffer1 = NULL;
-		guint8* _tmp2_;
-		gint buffer1_length1;
-		gint _buffer1_size_;
-		guint8* buffer2 = NULL;
-		guint8* _tmp3_;
-		gint buffer2_length1;
-		gint _buffer2_size_;
-		gsize bytes_read1 = 0UL;
-		gsize bytes_read2 = 0UL;
-		gboolean are_equal = FALSE;
-		_tmp0_ = g_fopen (file1, "rb");
-		stream1 = _tmp0_;
-		_tmp1_ = g_fopen (file2, "rb");
-		stream2 = _tmp1_;
-		_tmp2_ = g_new0 (guint8, 4096);
-		buffer1 = _tmp2_;
-		buffer1_length1 = 4096;
-		_buffer1_size_ = buffer1_length1;
-		_tmp3_ = g_new0 (guint8, 4096);
-		buffer2 = _tmp3_;
-		buffer2_length1 = 4096;
-		_buffer2_size_ = buffer2_length1;
-		are_equal = TRUE;
+		GFile* file1 = NULL;
+		GFile* _tmp1_;
+		GFile* file2 = NULL;
+		GFile* _tmp2_;
+		GFileInputStream* _tmp3_ = NULL;
+		GFile* _tmp4_;
+		GFileInputStream* _tmp5_;
+		GDataInputStream* file1_stream = NULL;
+		GDataInputStream* _tmp6_;
+		GFileInputStream* _tmp7_ = NULL;
+		GFile* _tmp8_;
+		GFileInputStream* _tmp9_;
+		GDataInputStream* file2_stream = NULL;
+		GDataInputStream* _tmp10_;
+		gchar* line1 = NULL;
+		gchar* line2 = NULL;
+		gint line_number = 0;
+		_tmp1_ = g_file_new_for_path (file1_path);
+		file1 = _tmp1_;
+		_tmp2_ = g_file_new_for_path (file2_path);
+		file2 = _tmp2_;
+		_tmp4_ = file1;
+		_tmp5_ = g_file_read (_tmp4_, NULL, &_inner_error0_);
+		_tmp3_ = _tmp5_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp6_ = g_data_input_stream_new ((GInputStream*) _tmp3_);
+		file1_stream = _tmp6_;
+		_tmp8_ = file2;
+		_tmp9_ = g_file_read (_tmp8_, NULL, &_inner_error0_);
+		_tmp7_ = _tmp9_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_object_unref0 (file1_stream);
+			_g_object_unref0 (_tmp3_);
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp10_ = g_data_input_stream_new ((GInputStream*) _tmp7_);
+		file2_stream = _tmp10_;
+		line1 = NULL;
+		line2 = NULL;
+		line_number = 1;
 		while (TRUE) {
-			FILE* _tmp4_;
-			guint8* _tmp5_;
-			gint _tmp5__length1;
-			FILE* _tmp6_;
-			guint8* _tmp7_;
-			gint _tmp7__length1;
-			_tmp4_ = stream1;
-			_tmp5_ = buffer1;
-			_tmp5__length1 = buffer1_length1;
-			bytes_read1 = fread (_tmp5_, (gsize) 1, (gint) _tmp5__length1, _tmp4_);
-			_tmp6_ = stream2;
-			_tmp7_ = buffer2;
-			_tmp7__length1 = buffer2_length1;
-			bytes_read2 = fread (_tmp7_, (gsize) 1, (gint) _tmp7__length1, _tmp6_);
-			if (bytes_read1 != bytes_read2) {
-				are_equal = FALSE;
-				break;
+			gboolean _tmp11_ = FALSE;
+			gchar* _tmp12_ = NULL;
+			GDataInputStream* _tmp13_;
+			gchar* _tmp14_;
+			gchar* _tmp15_;
+			const gchar* _tmp16_;
+			const gchar* _tmp22_;
+			const gchar* _tmp24_;
+			GString* _tmp26_;
+			const gchar* _tmp27_;
+			const gchar* _tmp28_;
+			const gchar* _tmp29_;
+			gint _tmp37_;
+			_tmp13_ = file1_stream;
+			_tmp14_ = g_data_input_stream_read_line (_tmp13_, NULL, NULL, &_inner_error0_);
+			_tmp12_ = _tmp14_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_free0 (line2);
+				_g_free0 (line1);
+				_g_object_unref0 (file2_stream);
+				_g_object_unref0 (_tmp7_);
+				_g_object_unref0 (file1_stream);
+				_g_object_unref0 (_tmp3_);
+				_g_object_unref0 (file2);
+				_g_object_unref0 (file1);
+				goto __catch0_g_error;
 			}
-			if (bytes_read1 == ((gsize) 0)) {
-				break;
-			}
-			{
-				gsize i = 0UL;
-				i = (gsize) 0;
-				{
-					gboolean _tmp8_ = FALSE;
-					_tmp8_ = TRUE;
-					while (TRUE) {
-						guint8* _tmp10_;
-						gint _tmp10__length1;
-						guint8 _tmp11_;
-						guint8* _tmp12_;
-						gint _tmp12__length1;
-						guint8 _tmp13_;
-						if (!_tmp8_) {
-							gsize _tmp9_;
-							_tmp9_ = i;
-							i = _tmp9_ + 1;
-						}
-						_tmp8_ = FALSE;
-						if (!(i < bytes_read1)) {
-							break;
-						}
-						_tmp10_ = buffer1;
-						_tmp10__length1 = buffer1_length1;
-						_tmp11_ = _tmp10_[i];
-						_tmp12_ = buffer2;
-						_tmp12__length1 = buffer2_length1;
-						_tmp13_ = _tmp12_[i];
-						if (_tmp11_ != _tmp13_) {
-							are_equal = FALSE;
-							break;
-						}
-					}
+			_tmp15_ = _tmp12_;
+			_tmp12_ = NULL;
+			_g_free0 (line1);
+			line1 = _tmp15_;
+			_tmp16_ = line1;
+			if (_tmp16_ != NULL) {
+				_tmp11_ = TRUE;
+			} else {
+				gchar* _tmp17_ = NULL;
+				GDataInputStream* _tmp18_;
+				gchar* _tmp19_;
+				gchar* _tmp20_;
+				const gchar* _tmp21_;
+				_tmp18_ = file2_stream;
+				_tmp19_ = g_data_input_stream_read_line (_tmp18_, NULL, NULL, &_inner_error0_);
+				_tmp17_ = _tmp19_;
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					_g_free0 (_tmp12_);
+					_g_free0 (line2);
+					_g_free0 (line1);
+					_g_object_unref0 (file2_stream);
+					_g_object_unref0 (_tmp7_);
+					_g_object_unref0 (file1_stream);
+					_g_object_unref0 (_tmp3_);
+					_g_object_unref0 (file2);
+					_g_object_unref0 (file1);
+					goto __catch0_g_error;
 				}
+				_tmp20_ = _tmp17_;
+				_tmp17_ = NULL;
+				_g_free0 (line2);
+				line2 = _tmp20_;
+				_tmp21_ = line2;
+				_tmp11_ = _tmp21_ != NULL;
+				_g_free0 (_tmp17_);
 			}
-			if (!are_equal) {
+			if (!_tmp11_) {
+				_g_free0 (_tmp12_);
 				break;
 			}
+			_tmp22_ = line1;
+			if (_tmp22_ == NULL) {
+				gchar* _tmp23_;
+				_tmp23_ = g_strdup ("");
+				_g_free0 (line1);
+				line1 = _tmp23_;
+			}
+			_tmp24_ = line2;
+			if (_tmp24_ == NULL) {
+				gchar* _tmp25_;
+				_tmp25_ = g_strdup ("");
+				_g_free0 (line2);
+				line2 = _tmp25_;
+			}
+			_tmp26_ = _result_;
+			_tmp27_ = line2;
+			g_string_append (_tmp26_, _tmp27_);
+			_tmp28_ = line1;
+			_tmp29_ = line2;
+			if (g_strcmp0 (_tmp28_, _tmp29_) != 0) {
+				gchar* exclamation_marks = NULL;
+				gchar* _tmp30_;
+				GString* _tmp31_;
+				const gchar* _tmp32_;
+				const gchar* _tmp33_;
+				gchar* _tmp34_;
+				gchar* _tmp35_;
+				GString* _tmp36_;
+				_tmp30_ = g_strnfill ((gsize) 3, '!');
+				exclamation_marks = _tmp30_;
+				_tmp31_ = _result_;
+				_tmp32_ = exclamation_marks;
+				_tmp33_ = string_to_string (_tmp32_);
+				_tmp34_ = g_strconcat (_tmp33_, "\n", NULL);
+				_tmp35_ = _tmp34_;
+				g_string_append (_tmp31_, _tmp35_);
+				_g_free0 (_tmp35_);
+				_tmp36_ = _result_;
+				g_string_append (_tmp36_, "String before !!! is different");
+				self->error_lines = g_list_append (self->error_lines, (gpointer) ((gintptr) line_number));
+				_g_free0 (exclamation_marks);
+			}
+			_tmp37_ = line_number;
+			line_number = _tmp37_ + 1;
+			_g_free0 (_tmp12_);
 		}
-		if (are_equal) {
-			result = TRUE;
-			buffer2 = (g_free (buffer2), NULL);
-			buffer1 = (g_free (buffer1), NULL);
-			_fclose0 (stream2);
-			_fclose0 (stream1);
-			return result;
-		} else {
-			result = FALSE;
-			buffer2 = (g_free (buffer2), NULL);
-			buffer1 = (g_free (buffer1), NULL);
-			_fclose0 (stream2);
-			_fclose0 (stream1);
-			return result;
-		}
-		buffer2 = (g_free (buffer2), NULL);
-		buffer1 = (g_free (buffer1), NULL);
-		_fclose0 (stream2);
-		_fclose0 (stream1);
+		_g_free0 (line2);
+		_g_free0 (line1);
+		_g_object_unref0 (file2_stream);
+		_g_object_unref0 (_tmp7_);
+		_g_object_unref0 (file1_stream);
+		_g_object_unref0 (_tmp3_);
+		_g_object_unref0 (file2);
+		_g_object_unref0 (file1);
 	}
 	goto __finally0;
 	__catch0_g_error:
 	{
 		GError* e = NULL;
-		GError* _tmp14_;
-		const gchar* _tmp15_;
+		GString* _tmp38_;
+		GError* _tmp39_;
+		const gchar* _tmp40_;
+		const gchar* _tmp41_;
+		gchar* _tmp42_;
+		gchar* _tmp43_;
 		e = _inner_error0_;
 		_inner_error0_ = NULL;
-		_tmp14_ = e;
-		_tmp15_ = _tmp14_->message;
-		g_print ("Error: %s\n", _tmp15_);
+		_tmp38_ = _result_;
+		_tmp39_ = e;
+		_tmp40_ = _tmp39_->message;
+		_tmp41_ = string_to_string (_tmp40_);
+		_tmp42_ = g_strconcat ("File read error zzz: ", _tmp41_, "\n", NULL);
+		_tmp43_ = _tmp42_;
+		g_string_append (_tmp38_, _tmp43_);
+		_g_free0 (_tmp43_);
 		_g_error_free0 (e);
 	}
 	__finally0:
-	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
-	g_clear_error (&_inner_error0_);
-	return _tmp16_;
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		_g_string_free0 (_result_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return NULL;
+	}
+	_tmp44_ = _result_;
+	_tmp45_ = _tmp44_->str;
+	_tmp46_ = g_strdup (_tmp45_);
+	result = _tmp46_;
+	_g_string_free0 (_result_);
+	return result;
 }
 
 FileIntegrityCheckerFileUtils*
@@ -756,12 +853,23 @@ file_integrity_checker_file_utils_class_init (FileIntegrityCheckerFileUtilsClass
                                               gpointer klass_data)
 {
 	file_integrity_checker_file_utils_parent_class = g_type_class_peek_parent (klass);
+	G_OBJECT_CLASS (klass)->finalize = file_integrity_checker_file_utils_finalize;
 }
 
 static void
 file_integrity_checker_file_utils_instance_init (FileIntegrityCheckerFileUtils * self,
                                                  gpointer klass)
 {
+	self->error_lines = NULL;
+}
+
+static void
+file_integrity_checker_file_utils_finalize (GObject * obj)
+{
+	FileIntegrityCheckerFileUtils * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, FILE_INTEGRITY_CHECKER_TYPE_FILE_UTILS, FileIntegrityCheckerFileUtils);
+	(self->error_lines == NULL) ? NULL : (self->error_lines = (g_list_free (self->error_lines), NULL));
+	G_OBJECT_CLASS (file_integrity_checker_file_utils_parent_class)->finalize (obj);
 }
 
 static GType

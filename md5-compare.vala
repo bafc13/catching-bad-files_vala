@@ -8,7 +8,6 @@ namespace FileIntegrityChecker {
         public List<string> dir2_files_list = new List<string>();
         public List<int> dir_compare_int_result = new List<int>();
         
-        
         public FileComparator(string dir1, string dir2) { //ctor
             this.directory1 = dir1;
             this.directory2 = dir2;
@@ -112,7 +111,7 @@ namespace FileIntegrityChecker {
 
 
     public class FileUtils : Object {
-
+        public List<int> error_lines = new List<int>();
 
         public static string calculate_checksum(string file_path) {
             var checksum = new Checksum(GLib.ChecksumType.MD5);
@@ -135,46 +134,36 @@ namespace FileIntegrityChecker {
         }
 
 
-
-        public static bool compare_files_by_bytes(string file1, string file2) {
-            try {
-                FileStream stream1 = FileStream.open(file1, "rb");
-                FileStream stream2 = FileStream.open(file2, "rb");
-        
-                uint8[] buffer1 = new uint8[4096];
-                uint8[] buffer2 = new uint8[4096];
-                size_t bytes_read1, bytes_read2;
-        
-                bool are_equal = true;
-        
-                while (true) {
-                    bytes_read1 = stream1.read(buffer1);
-                    bytes_read2 = stream2.read(buffer2);
-                    if (bytes_read1 != bytes_read2) {
-                        are_equal = false;
-                        break;
-                    }
-                    if (bytes_read1 == 0) { // compare readed data// end of both files
-                        break;
-                    }
-                    for (size_t i = 0; i < bytes_read1; i++) {// buf diff
-                        if (buffer1[i] != buffer2[i]) {
-                            are_equal = false;
-                            break;
-                        }
-                    }
-                    if (!are_equal) {
-                        break;
-                    }
+    public string compare_files_lines(string file1_path, string file2_path) {
+        StringBuilder result = new StringBuilder();
+        try {
+            var file1 = File.new_for_path(file1_path);
+            var file2 = File.new_for_path(file2_path);
+    
+            var file1_stream = new DataInputStream(file1.read());
+            var file2_stream = new DataInputStream(file2.read());
+    
+            string? line1 = null;
+            string? line2 = null;
+            int line_number = 1;
+    
+            while ((line1 = file1_stream.read_line()) != null || (line2 = file2_stream.read_line()) != null) {
+                if (line1 == null) line1 = "";
+                if (line2 == null) line2 = "";
+                result.append(line2);
+                if (line1 != line2) {
+                    string exclamation_marks = string.nfill(3, '!');
+                    result.append(@"$exclamation_marks\n");
+                    result.append("String before !!! is different");
+                    this.error_lines.append(line_number);
                 }
-                if (are_equal) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Error e) {
-                print("Error: %s\n", e.message);
+                line_number++;
             }
+        } catch (Error e) {
+            result.append(@"File read error zzz: $(e.message)\n");
         }
+    
+        return result.str;
     }
+}
 }
