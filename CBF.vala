@@ -1,16 +1,15 @@
-using Gtk;
-
 
 public class CBF : Gtk.Application {
     private Gtk.TextView text_view;
+    private Gtk.TextView text_view1;
     private Gtk.ApplicationWindow window;
-    Label line_number_label;
+    private Gtk.Label line_number_label;
     private Gtk.Box vbox_for_files;
     private string dir1_path;
     private string dir2_path;
     public List<string> dir1_files_list;
     public List<string> dir2_files_list;
-    FileIntegrityChecker.FileComparator comparator;
+    private FileIntegrityChecker.FileComparator comparator;
 
     public CBF () {
         Object (application_id: "bafc13.CBF.test");
@@ -69,7 +68,6 @@ public class CBF : Gtk.Application {
             vscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vexpand = true,
             valign = Gtk.Align.FILL
-            //  child = this.text_view
         };
         var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
         vbox.append (toolbar);
@@ -145,12 +143,13 @@ public class CBF : Gtk.Application {
                 }
                 int temp_index = 0;
                 foreach(var temp_file in dir2_files_list){
-                    //  string file_name = temp_file;
-                    var button = new Button.with_label (temp_file){
+
+                    var button = new Gtk.Button.with_label (temp_file){
                         valign = Gtk.Align.BASELINE_CENTER
                     };
                     if(error_files_indexes.find (temp_index) != null){
                         button.add_css_class("destructive-action");
+                        
                     } else {
                         button.add_css_class("suggested-action");
                     }
@@ -163,26 +162,21 @@ public class CBF : Gtk.Application {
 
                 }
             }
-            
         } catch (Error e) {
             print("Error while comparing directories: %s\n", e.message);
         }
         }
 
+
+
         private void create_window_with_file_contents(string file){
             FileIntegrityChecker.FileUtils fileutil = new FileIntegrityChecker.FileUtils();
-
-
-
-
             this.dir1_files_list = new List<string>();
                 foreach (var item in comparator.dir1_files_list){
                     dir1_files_list.append (item); //dir1_files_list
                 }
 
             string initial_file = "";
-            //  int index = 1;
-            //  foreach (string source_path in dir2_files_list) {
                 string source_filename = File.new_for_path(file).get_basename();
                 foreach (string target_path in dir1_files_list) {
                     string target_filename = File.new_for_path(target_path).get_basename();
@@ -190,55 +184,56 @@ public class CBF : Gtk.Application {
                         initial_file = target_path;
                     }
                 }
-                
-                
-            //  }
 
-            string file_with_errors = fileutil.compare_files_lines (initial_file, file);
+            string[] file_with_errors = fileutil.compare_files_lines (initial_file, file);
+
 
             List<int> error_lines_list = new List<int>();
             foreach (var item in fileutil.error_lines){
                 error_lines_list.append(item);
             }
 
-            var new_window = new Window();
+            var new_window = new Gtk.Window();
             new_window.title = file;
-            new_window.set_default_size(1366, 768);
+            new_window.set_default_size(1600, 900);
 
-            var scrolled_window = new ScrolledWindow();
+            var scrolled_window = new Gtk.ScrolledWindow();
             new_window.set_child(scrolled_window);
             
-            var hbox = new Box(Orientation.HORIZONTAL, 5);
+            var hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
             scrolled_window.set_child(hbox);
 
-            text_view = new TextView();
+            text_view = new Gtk.TextView();
             text_view.hexpand = true;
-            text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR);
             text_view.editable = false;
             text_view.buffer.changed.connect(() => update_line_numbers());
 
-
+            text_view1 = new Gtk.TextView();
+            text_view1.hexpand = true;
+            text_view1.editable = false;
+            text_view1.buffer.changed.connect(() => update_line_numbers());
 
             var buffer = text_view.buffer;
             buffer.text = "Strings with errors - ";
             foreach (var item in error_lines_list){
                 buffer.text += item.to_string ("%i ");
-            }
-            buffer.text += "\n";
+            } 
+            
+            buffer.text += file_with_errors[1]; //!!!!!!!!!!!!!!!!!!!!!!!!!
 
-            buffer.text += file_with_errors;
+            var buffer1 = text_view1.buffer;
+            buffer1.text = "Initial file\n" + file_with_errors[0];
 
-
-
-            line_number_label = new Label("");
+            line_number_label = new Gtk.Label("");
             line_number_label.hexpand = false;
             line_number_label.set_wrap (true);
-            line_number_label.set_valign(Align.START);
-            line_number_label.set_halign(Align.START);
+            line_number_label.set_valign(Gtk.Align.START);
+            line_number_label.set_halign(Gtk.Align.START);
             line_number_label.set_margin_end(0);
 
             hbox.append(line_number_label);
             hbox.append(text_view);
+            hbox.append(text_view1);
             
             update_line_numbers ();
             new_window.present();
@@ -247,7 +242,7 @@ public class CBF : Gtk.Application {
         private void update_line_numbers(){
             var line_count = text_view.buffer.get_line_count();
             var numbers = new StringBuilder();
-            for (int i = 1; i <= line_count; i++) {
+            for (int i = 0; i <= line_count; i++) {
                 numbers.append(i.to_string() + "\n");
             }
             line_number_label.set_text(numbers.str);

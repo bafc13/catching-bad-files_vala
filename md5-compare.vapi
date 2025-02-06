@@ -19,6 +19,6 @@ namespace FileIntegrityChecker {
 		public GLib.List<int> error_lines;
 		public FileUtils ();
 		public static string calculate_checksum (string file_path);
-		public string compare_files_lines (string file1_path, string file2_path);
+		public string[] compare_files_lines (string file1_path, string file2_path);
 	}
 }

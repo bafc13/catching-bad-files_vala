@@ -84,9 +84,10 @@ VALA_EXTERN void file_integrity_checker_file_comparator_generate_report (FileInt
 VALA_EXTERN GType file_integrity_checker_file_utils_get_type (void) G_GNUC_CONST ;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (FileIntegrityCheckerFileUtils, g_object_unref)
 VALA_EXTERN gchar* file_integrity_checker_file_utils_calculate_checksum (const gchar* file_path);
-VALA_EXTERN gchar* file_integrity_checker_file_utils_compare_files_lines (FileIntegrityCheckerFileUtils* self,
-                                                              const gchar* file1_path,
-                                                              const gchar* file2_path);
+VALA_EXTERN gchar** file_integrity_checker_file_utils_compare_files_lines (FileIntegrityCheckerFileUtils* self,
+                                                               const gchar* file1_path,
+                                                               const gchar* file2_path,
+                                                               gint* result_length1);
 VALA_EXTERN FileIntegrityCheckerFileUtils* file_integrity_checker_file_utils_new (void);
 VALA_EXTERN FileIntegrityCheckerFileUtils* file_integrity_checker_file_utils_construct (GType object_type);
 

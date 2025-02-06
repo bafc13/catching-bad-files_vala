@@ -610,190 +610,416 @@ string_to_string (const gchar* self)
 	return result;
 }
 
-gchar*
+gchar**
 file_integrity_checker_file_utils_compare_files_lines (FileIntegrityCheckerFileUtils* self,
                                                        const gchar* file1_path,
-                                                       const gchar* file2_path)
+                                                       const gchar* file2_path,
+                                                       gint* result_length1)
 {
-	GString* _result_ = NULL;
+	GString* result_file_1 = NULL;
 	GString* _tmp0_;
-	GString* _tmp44_;
-	const gchar* _tmp45_;
-	gchar* _tmp46_;
+	GString* result_file_2 = NULL;
+	GString* _tmp1_;
+	GString* _tmp98_;
+	const gchar* _tmp99_;
+	gchar* _tmp100_;
+	GString* _tmp101_;
+	const gchar* _tmp102_;
+	gchar* _tmp103_;
+	gchar** _tmp104_;
+	gchar** _tmp105_;
+	gint _tmp105__length1;
 	GError* _inner_error0_ = NULL;
-	gchar* result;
+	gchar** result;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (file1_path != NULL, NULL);
 	g_return_val_if_fail (file2_path != NULL, NULL);
 	_tmp0_ = g_string_new ("");
-	_result_ = _tmp0_;
+	result_file_1 = _tmp0_;
+	_tmp1_ = g_string_new ("");
+	result_file_2 = _tmp1_;
 	{
 		GFile* file1 = NULL;
-		GFile* _tmp1_;
-		GFile* file2 = NULL;
 		GFile* _tmp2_;
-		GFileInputStream* _tmp3_ = NULL;
-		GFile* _tmp4_;
-		GFileInputStream* _tmp5_;
+		GFile* file2 = NULL;
+		GFile* _tmp3_;
+		GFileInputStream* _tmp4_ = NULL;
+		GFile* _tmp5_;
+		GFileInputStream* _tmp6_;
 		GDataInputStream* file1_stream = NULL;
-		GDataInputStream* _tmp6_;
-		GFileInputStream* _tmp7_ = NULL;
-		GFile* _tmp8_;
-		GFileInputStream* _tmp9_;
+		GDataInputStream* _tmp7_;
+		GFileInputStream* _tmp8_ = NULL;
+		GFile* _tmp9_;
+		GFileInputStream* _tmp10_;
 		GDataInputStream* file2_stream = NULL;
-		GDataInputStream* _tmp10_;
+		GDataInputStream* _tmp11_;
 		gchar* line1 = NULL;
 		gchar* line2 = NULL;
 		gint line_number = 0;
-		_tmp1_ = g_file_new_for_path (file1_path);
-		file1 = _tmp1_;
-		_tmp2_ = g_file_new_for_path (file2_path);
-		file2 = _tmp2_;
-		_tmp4_ = file1;
-		_tmp5_ = g_file_read (_tmp4_, NULL, &_inner_error0_);
-		_tmp3_ = _tmp5_;
+		gboolean error_append = FALSE;
+		gchar* _tmp12_ = NULL;
+		GDataInputStream* _tmp13_;
+		gchar* _tmp14_;
+		gchar* _tmp15_;
+		gchar* _tmp16_ = NULL;
+		GDataInputStream* _tmp17_;
+		gchar* _tmp18_;
+		gchar* _tmp19_;
+		gchar* line3 = NULL;
+		GDataInputStream* _tmp67_;
+		GFileInputStream* _tmp68_ = NULL;
+		GFile* _tmp69_;
+		GFileInputStream* _tmp70_;
+		GDataInputStream* _tmp71_;
+		_tmp2_ = g_file_new_for_path (file1_path);
+		file1 = _tmp2_;
+		_tmp3_ = g_file_new_for_path (file2_path);
+		file2 = _tmp3_;
+		_tmp5_ = file1;
+		_tmp6_ = g_file_read (_tmp5_, NULL, &_inner_error0_);
+		_tmp4_ = _tmp6_;
 		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_object_unref0 (file2);
 			_g_object_unref0 (file1);
 			goto __catch0_g_error;
 		}
-		_tmp6_ = g_data_input_stream_new ((GInputStream*) _tmp3_);
-		file1_stream = _tmp6_;
-		_tmp8_ = file2;
-		_tmp9_ = g_file_read (_tmp8_, NULL, &_inner_error0_);
-		_tmp7_ = _tmp9_;
+		_tmp7_ = g_data_input_stream_new ((GInputStream*) _tmp4_);
+		file1_stream = _tmp7_;
+		_tmp9_ = file2;
+		_tmp10_ = g_file_read (_tmp9_, NULL, &_inner_error0_);
+		_tmp8_ = _tmp10_;
 		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_object_unref0 (file1_stream);
-			_g_object_unref0 (_tmp3_);
+			_g_object_unref0 (_tmp4_);
 			_g_object_unref0 (file2);
 			_g_object_unref0 (file1);
 			goto __catch0_g_error;
 		}
-		_tmp10_ = g_data_input_stream_new ((GInputStream*) _tmp7_);
-		file2_stream = _tmp10_;
+		_tmp11_ = g_data_input_stream_new ((GInputStream*) _tmp8_);
+		file2_stream = _tmp11_;
 		line1 = NULL;
 		line2 = NULL;
 		line_number = 1;
+		error_append = TRUE;
+		_tmp13_ = file1_stream;
+		_tmp14_ = g_data_input_stream_read_line (_tmp13_, NULL, NULL, &_inner_error0_);
+		_tmp12_ = _tmp14_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (line2);
+			_g_free0 (line1);
+			_g_object_unref0 (file2_stream);
+			_g_object_unref0 (_tmp8_);
+			_g_object_unref0 (file1_stream);
+			_g_object_unref0 (_tmp4_);
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp15_ = _tmp12_;
+		_tmp12_ = NULL;
+		_g_free0 (line1);
+		line1 = _tmp15_;
+		_tmp17_ = file2_stream;
+		_tmp18_ = g_data_input_stream_read_line (_tmp17_, NULL, NULL, &_inner_error0_);
+		_tmp16_ = _tmp18_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (_tmp12_);
+			_g_free0 (line2);
+			_g_free0 (line1);
+			_g_object_unref0 (file2_stream);
+			_g_object_unref0 (_tmp8_);
+			_g_object_unref0 (file1_stream);
+			_g_object_unref0 (_tmp4_);
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp19_ = _tmp16_;
+		_tmp16_ = NULL;
+		_g_free0 (line2);
+		line2 = _tmp19_;
 		while (TRUE) {
-			gboolean _tmp11_ = FALSE;
-			gchar* _tmp12_ = NULL;
-			GDataInputStream* _tmp13_;
-			gchar* _tmp14_;
-			gchar* _tmp15_;
-			const gchar* _tmp16_;
+			const gchar* _tmp20_;
 			const gchar* _tmp22_;
 			const gchar* _tmp24_;
-			GString* _tmp26_;
-			const gchar* _tmp27_;
-			const gchar* _tmp28_;
+			const gchar* _tmp25_;
+			gint _tmp26_;
+			gint _tmp27_;
+			gchar* _tmp28_;
+			gsize bread = 0UL;
+			gsize bwritten = 0UL;
+			gchar* buf = NULL;
 			const gchar* _tmp29_;
-			gint _tmp37_;
-			_tmp13_ = file1_stream;
-			_tmp14_ = g_data_input_stream_read_line (_tmp13_, NULL, NULL, &_inner_error0_);
-			_tmp12_ = _tmp14_;
+			const gchar* _tmp30_;
+			gint _tmp31_;
+			gint _tmp32_;
+			gsize _tmp33_ = 0UL;
+			gsize _tmp34_ = 0UL;
+			gchar* _tmp35_;
+			const gchar* _tmp36_;
+			const gchar* _tmp52_;
+			const gchar* _tmp53_;
+			gint _tmp55_;
+			gchar* _tmp56_ = NULL;
+			GDataInputStream* _tmp57_;
+			gchar* _tmp58_;
+			gchar* _tmp59_;
+			gchar* _tmp60_ = NULL;
+			GDataInputStream* _tmp61_;
+			gchar* _tmp62_;
+			gchar* _tmp63_;
+			gboolean _tmp64_ = FALSE;
+			const gchar* _tmp65_;
+			_tmp20_ = line1;
+			if (_tmp20_ == NULL) {
+				gchar* _tmp21_;
+				_tmp21_ = g_strdup ("");
+				_g_free0 (line1);
+				line1 = _tmp21_;
+			}
+			_tmp22_ = line2;
+			if (_tmp22_ == NULL) {
+				gchar* _tmp23_;
+				_tmp23_ = g_strdup ("");
+				_g_free0 (line2);
+				line2 = _tmp23_;
+			}
+			_tmp24_ = line1;
+			_tmp25_ = line1;
+			_tmp26_ = strlen (_tmp25_);
+			_tmp27_ = _tmp26_;
+			_tmp28_ = g_utf8_make_valid (_tmp24_, (gssize) _tmp27_);
+			_g_free0 (line1);
+			line1 = _tmp28_;
+			bread = (gsize) 0;
+			bwritten = (gsize) 0;
+			_tmp29_ = line2;
+			_tmp30_ = line2;
+			_tmp31_ = strlen (_tmp30_);
+			_tmp32_ = _tmp31_;
+			_tmp35_ = g_locale_to_utf8 (_tmp29_, (gssize) _tmp32_, &_tmp33_, &_tmp34_, NULL);
+			bread = _tmp33_;
+			bwritten = _tmp34_;
+			buf = _tmp35_;
+			_tmp36_ = buf;
+			if (_tmp36_ == NULL) {
+				const gchar* _tmp37_;
+				const gchar* _tmp38_;
+				gint _tmp39_;
+				gint _tmp40_;
+				gchar* _tmp41_;
+				_tmp37_ = line2;
+				_tmp38_ = line2;
+				_tmp39_ = strlen (_tmp38_);
+				_tmp40_ = _tmp39_;
+				_tmp41_ = g_utf8_make_valid (_tmp37_, (gssize) _tmp40_);
+				_g_free0 (buf);
+				buf = _tmp41_;
+			}
+			if (error_append) {
+				GString* _tmp42_;
+				const gchar* _tmp43_;
+				gchar* _tmp44_;
+				gchar* _tmp45_;
+				gchar* _tmp46_;
+				gchar* _tmp47_;
+				_tmp42_ = result_file_2;
+				_tmp43_ = buf;
+				_tmp44_ = g_strconcat ("\n", _tmp43_, NULL);
+				_tmp45_ = _tmp44_;
+				_tmp46_ = g_strconcat (_tmp45_, "\n", NULL);
+				_tmp47_ = _tmp46_;
+				g_string_append (_tmp42_, _tmp47_);
+				_g_free0 (_tmp47_);
+				_g_free0 (_tmp45_);
+				error_append = FALSE;
+			} else {
+				GString* _tmp48_;
+				const gchar* _tmp49_;
+				gchar* _tmp50_;
+				gchar* _tmp51_;
+				_tmp48_ = result_file_2;
+				_tmp49_ = buf;
+				_tmp50_ = g_strconcat (_tmp49_, "\n", NULL);
+				_tmp51_ = _tmp50_;
+				g_string_append (_tmp48_, _tmp51_);
+				_g_free0 (_tmp51_);
+			}
+			_tmp52_ = line1;
+			_tmp53_ = line2;
+			if (g_strcmp0 (_tmp52_, _tmp53_) != 0) {
+				GString* _tmp54_;
+				_tmp54_ = result_file_2;
+				g_string_append (_tmp54_, "String before is different");
+				error_append = TRUE;
+				self->error_lines = g_list_append (self->error_lines, (gpointer) ((gintptr) line_number));
+			}
+			_tmp55_ = line_number;
+			line_number = _tmp55_ + 1;
+			_tmp57_ = file1_stream;
+			_tmp58_ = g_data_input_stream_read_line (_tmp57_, NULL, NULL, &_inner_error0_);
+			_tmp56_ = _tmp58_;
 			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_free0 (buf);
+				_g_free0 (_tmp16_);
+				_g_free0 (_tmp12_);
 				_g_free0 (line2);
 				_g_free0 (line1);
 				_g_object_unref0 (file2_stream);
-				_g_object_unref0 (_tmp7_);
+				_g_object_unref0 (_tmp8_);
 				_g_object_unref0 (file1_stream);
-				_g_object_unref0 (_tmp3_);
+				_g_object_unref0 (_tmp4_);
 				_g_object_unref0 (file2);
 				_g_object_unref0 (file1);
 				goto __catch0_g_error;
 			}
-			_tmp15_ = _tmp12_;
-			_tmp12_ = NULL;
+			_tmp59_ = _tmp56_;
+			_tmp56_ = NULL;
 			_g_free0 (line1);
-			line1 = _tmp15_;
-			_tmp16_ = line1;
-			if (_tmp16_ != NULL) {
-				_tmp11_ = TRUE;
-			} else {
-				gchar* _tmp17_ = NULL;
-				GDataInputStream* _tmp18_;
-				gchar* _tmp19_;
-				gchar* _tmp20_;
-				const gchar* _tmp21_;
-				_tmp18_ = file2_stream;
-				_tmp19_ = g_data_input_stream_read_line (_tmp18_, NULL, NULL, &_inner_error0_);
-				_tmp17_ = _tmp19_;
-				if (G_UNLIKELY (_inner_error0_ != NULL)) {
-					_g_free0 (_tmp12_);
-					_g_free0 (line2);
-					_g_free0 (line1);
-					_g_object_unref0 (file2_stream);
-					_g_object_unref0 (_tmp7_);
-					_g_object_unref0 (file1_stream);
-					_g_object_unref0 (_tmp3_);
-					_g_object_unref0 (file2);
-					_g_object_unref0 (file1);
-					goto __catch0_g_error;
-				}
-				_tmp20_ = _tmp17_;
-				_tmp17_ = NULL;
-				_g_free0 (line2);
-				line2 = _tmp20_;
-				_tmp21_ = line2;
-				_tmp11_ = _tmp21_ != NULL;
-				_g_free0 (_tmp17_);
-			}
-			if (!_tmp11_) {
+			line1 = _tmp59_;
+			_tmp61_ = file2_stream;
+			_tmp62_ = g_data_input_stream_read_line (_tmp61_, NULL, NULL, &_inner_error0_);
+			_tmp60_ = _tmp62_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_free0 (_tmp56_);
+				_g_free0 (buf);
+				_g_free0 (_tmp16_);
 				_g_free0 (_tmp12_);
+				_g_free0 (line2);
+				_g_free0 (line1);
+				_g_object_unref0 (file2_stream);
+				_g_object_unref0 (_tmp8_);
+				_g_object_unref0 (file1_stream);
+				_g_object_unref0 (_tmp4_);
+				_g_object_unref0 (file2);
+				_g_object_unref0 (file1);
+				goto __catch0_g_error;
+			}
+			_tmp63_ = _tmp60_;
+			_tmp60_ = NULL;
+			_g_free0 (line2);
+			line2 = _tmp63_;
+			_tmp65_ = line1;
+			if (_tmp65_ == NULL) {
+				const gchar* _tmp66_;
+				_tmp66_ = line2;
+				_tmp64_ = _tmp66_ == NULL;
+			} else {
+				_tmp64_ = FALSE;
+			}
+			if (_tmp64_) {
+				_g_free0 (_tmp60_);
+				_g_free0 (_tmp56_);
+				_g_free0 (buf);
 				break;
 			}
-			_tmp22_ = line1;
-			if (_tmp22_ == NULL) {
-				gchar* _tmp23_;
-				_tmp23_ = g_strdup ("");
-				_g_free0 (line1);
-				line1 = _tmp23_;
-			}
-			_tmp24_ = line2;
-			if (_tmp24_ == NULL) {
-				gchar* _tmp25_;
-				_tmp25_ = g_strdup ("");
-				_g_free0 (line2);
-				line2 = _tmp25_;
-			}
-			_tmp26_ = _result_;
-			_tmp27_ = line2;
-			g_string_append (_tmp26_, _tmp27_);
-			_tmp28_ = line1;
-			_tmp29_ = line2;
-			if (g_strcmp0 (_tmp28_, _tmp29_) != 0) {
-				gchar* exclamation_marks = NULL;
-				gchar* _tmp30_;
-				GString* _tmp31_;
-				const gchar* _tmp32_;
-				const gchar* _tmp33_;
-				gchar* _tmp34_;
-				gchar* _tmp35_;
-				GString* _tmp36_;
-				_tmp30_ = g_strnfill ((gsize) 3, '!');
-				exclamation_marks = _tmp30_;
-				_tmp31_ = _result_;
-				_tmp32_ = exclamation_marks;
-				_tmp33_ = string_to_string (_tmp32_);
-				_tmp34_ = g_strconcat (_tmp33_, "\n", NULL);
-				_tmp35_ = _tmp34_;
-				g_string_append (_tmp31_, _tmp35_);
-				_g_free0 (_tmp35_);
-				_tmp36_ = _result_;
-				g_string_append (_tmp36_, "String before !!! is different");
-				self->error_lines = g_list_append (self->error_lines, (gpointer) ((gintptr) line_number));
-				_g_free0 (exclamation_marks);
-			}
-			_tmp37_ = line_number;
-			line_number = _tmp37_ + 1;
-			_g_free0 (_tmp12_);
+			_g_free0 (_tmp60_);
+			_g_free0 (_tmp56_);
+			_g_free0 (buf);
 		}
+		_tmp67_ = file1_stream;
+		g_input_stream_close ((GInputStream*) _tmp67_, NULL, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (line3);
+			_g_free0 (_tmp16_);
+			_g_free0 (_tmp12_);
+			_g_free0 (line2);
+			_g_free0 (line1);
+			_g_object_unref0 (file2_stream);
+			_g_object_unref0 (_tmp8_);
+			_g_object_unref0 (file1_stream);
+			_g_object_unref0 (_tmp4_);
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp69_ = file1;
+		_tmp70_ = g_file_read (_tmp69_, NULL, &_inner_error0_);
+		_tmp68_ = _tmp70_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (line3);
+			_g_free0 (_tmp16_);
+			_g_free0 (_tmp12_);
+			_g_free0 (line2);
+			_g_free0 (line1);
+			_g_object_unref0 (file2_stream);
+			_g_object_unref0 (_tmp8_);
+			_g_object_unref0 (file1_stream);
+			_g_object_unref0 (_tmp4_);
+			_g_object_unref0 (file2);
+			_g_object_unref0 (file1);
+			goto __catch0_g_error;
+		}
+		_tmp71_ = g_data_input_stream_new ((GInputStream*) _tmp68_);
+		_g_object_unref0 (file1_stream);
+		file1_stream = _tmp71_;
+		while (TRUE) {
+			gchar* _tmp72_ = NULL;
+			GDataInputStream* _tmp73_;
+			gchar* _tmp74_;
+			gchar* _tmp75_;
+			const gchar* _tmp76_;
+			const gchar* _tmp77_;
+			const gchar* _tmp78_;
+			gint _tmp79_;
+			gint _tmp80_;
+			gchar* _tmp81_;
+			GString* _tmp82_;
+			const gchar* _tmp83_;
+			gchar* _tmp84_;
+			gchar* _tmp85_;
+			_tmp73_ = file1_stream;
+			_tmp74_ = g_data_input_stream_read_line (_tmp73_, NULL, NULL, &_inner_error0_);
+			_tmp72_ = _tmp74_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				_g_object_unref0 (_tmp68_);
+				_g_free0 (line3);
+				_g_free0 (_tmp16_);
+				_g_free0 (_tmp12_);
+				_g_free0 (line2);
+				_g_free0 (line1);
+				_g_object_unref0 (file2_stream);
+				_g_object_unref0 (_tmp8_);
+				_g_object_unref0 (file1_stream);
+				_g_object_unref0 (_tmp4_);
+				_g_object_unref0 (file2);
+				_g_object_unref0 (file1);
+				goto __catch0_g_error;
+			}
+			_tmp75_ = _tmp72_;
+			_tmp72_ = NULL;
+			_g_free0 (line3);
+			line3 = _tmp75_;
+			_tmp76_ = line3;
+			if (!(_tmp76_ != NULL)) {
+				_g_free0 (_tmp72_);
+				break;
+			}
+			_tmp77_ = line3;
+			_tmp78_ = line3;
+			_tmp79_ = strlen (_tmp78_);
+			_tmp80_ = _tmp79_;
+			_tmp81_ = g_utf8_make_valid (_tmp77_, (gssize) _tmp80_);
+			_g_free0 (line3);
+			line3 = _tmp81_;
+			_tmp82_ = result_file_1;
+			_tmp83_ = line3;
+			_tmp84_ = g_strconcat (_tmp83_, "\n", NULL);
+			_tmp85_ = _tmp84_;
+			g_string_append (_tmp82_, _tmp85_);
+			_g_free0 (_tmp85_);
+			_g_free0 (_tmp72_);
+		}
+		_g_object_unref0 (_tmp68_);
+		_g_free0 (line3);
+		_g_free0 (_tmp16_);
+		_g_free0 (_tmp12_);
 		_g_free0 (line2);
 		_g_free0 (line1);
 		_g_object_unref0 (file2_stream);
-		_g_object_unref0 (_tmp7_);
+		_g_object_unref0 (_tmp8_);
 		_g_object_unref0 (file1_stream);
-		_g_object_unref0 (_tmp3_);
+		_g_object_unref0 (_tmp4_);
 		_g_object_unref0 (file2);
 		_g_object_unref0 (file1);
 	}
@@ -801,36 +1027,63 @@ file_integrity_checker_file_utils_compare_files_lines (FileIntegrityCheckerFileU
 	__catch0_g_error:
 	{
 		GError* e = NULL;
-		GString* _tmp38_;
-		GError* _tmp39_;
-		const gchar* _tmp40_;
-		const gchar* _tmp41_;
-		gchar* _tmp42_;
-		gchar* _tmp43_;
+		GString* _tmp86_;
+		GError* _tmp87_;
+		const gchar* _tmp88_;
+		const gchar* _tmp89_;
+		gchar* _tmp90_;
+		gchar* _tmp91_;
+		GString* _tmp92_;
+		GError* _tmp93_;
+		const gchar* _tmp94_;
+		const gchar* _tmp95_;
+		gchar* _tmp96_;
+		gchar* _tmp97_;
 		e = _inner_error0_;
 		_inner_error0_ = NULL;
-		_tmp38_ = _result_;
-		_tmp39_ = e;
-		_tmp40_ = _tmp39_->message;
-		_tmp41_ = string_to_string (_tmp40_);
-		_tmp42_ = g_strconcat ("File read error zzz: ", _tmp41_, "\n", NULL);
-		_tmp43_ = _tmp42_;
-		g_string_append (_tmp38_, _tmp43_);
-		_g_free0 (_tmp43_);
+		_tmp86_ = result_file_1;
+		_tmp87_ = e;
+		_tmp88_ = _tmp87_->message;
+		_tmp89_ = string_to_string (_tmp88_);
+		_tmp90_ = g_strconcat ("File read error zzz: ", _tmp89_, "\n", NULL);
+		_tmp91_ = _tmp90_;
+		g_string_append (_tmp86_, _tmp91_);
+		_g_free0 (_tmp91_);
+		_tmp92_ = result_file_2;
+		_tmp93_ = e;
+		_tmp94_ = _tmp93_->message;
+		_tmp95_ = string_to_string (_tmp94_);
+		_tmp96_ = g_strconcat ("File read error zzz: ", _tmp95_, "\n", NULL);
+		_tmp97_ = _tmp96_;
+		g_string_append (_tmp92_, _tmp97_);
+		_g_free0 (_tmp97_);
 		_g_error_free0 (e);
 	}
 	__finally0:
 	if (G_UNLIKELY (_inner_error0_ != NULL)) {
-		_g_string_free0 (_result_);
+		_g_string_free0 (result_file_2);
+		_g_string_free0 (result_file_1);
 		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
 		g_clear_error (&_inner_error0_);
 		return NULL;
 	}
-	_tmp44_ = _result_;
-	_tmp45_ = _tmp44_->str;
-	_tmp46_ = g_strdup (_tmp45_);
-	result = _tmp46_;
-	_g_string_free0 (_result_);
+	_tmp98_ = result_file_1;
+	_tmp99_ = _tmp98_->str;
+	_tmp100_ = g_strdup (_tmp99_);
+	_tmp101_ = result_file_2;
+	_tmp102_ = _tmp101_->str;
+	_tmp103_ = g_strdup (_tmp102_);
+	_tmp104_ = g_new0 (gchar*, 2 + 1);
+	_tmp104_[0] = _tmp100_;
+	_tmp104_[1] = _tmp103_;
+	_tmp105_ = _tmp104_;
+	_tmp105__length1 = 2;
+	if (result_length1) {
+		*result_length1 = _tmp105__length1;
+	}
+	result = _tmp105_;
+	_g_string_free0 (result_file_2);
+	_g_string_free0 (result_file_1);
 	return result;
 }
 

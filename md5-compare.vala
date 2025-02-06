@@ -8,14 +8,14 @@ namespace FileIntegrityChecker {
         public List<string> dir2_files_list = new List<string>();
         public List<int> dir_compare_int_result = new List<int>();
         
-        public FileComparator(string dir1, string dir2) { //ctor
+        public FileComparator(string dir1, string dir2) {
             this.directory1 = dir1;
             this.directory2 = dir2;
         }
 
 
 
-        public void compare_directories() { //directory equal
+        public void compare_directories() {
             
             try{
                 GLib.Dir opened_directory1 = GLib.Dir.open(directory1, 0);
@@ -71,7 +71,6 @@ namespace FileIntegrityChecker {
         public bool check_file_integrity(string file1, string file2) { //control summ checker
             var sum1 = FileUtils.calculate_checksum(file1);
             var sum2 = FileUtils.calculate_checksum(file2);
-
             return sum1 == sum2;
         }
 
@@ -134,8 +133,9 @@ namespace FileIntegrityChecker {
         }
 
 
-    public string compare_files_lines(string file1_path, string file2_path) {
-        StringBuilder result = new StringBuilder();
+    public string[] compare_files_lines(string file1_path, string file2_path) {
+        StringBuilder result_file_1 = new StringBuilder();
+        StringBuilder result_file_2 = new StringBuilder();
         try {
             var file1 = File.new_for_path(file1_path);
             var file2 = File.new_for_path(file2_path);
@@ -147,23 +147,50 @@ namespace FileIntegrityChecker {
             string? line2 = null;
             int line_number = 1;
     
-            while ((line1 = file1_stream.read_line()) != null || (line2 = file2_stream.read_line()) != null) {
+            bool error_append = true;
+            line1 = file1_stream.read_line();
+            line2 = file2_stream.read_line();
+            while(true){
+
                 if (line1 == null) line1 = "";
                 if (line2 == null) line2 = "";
-                result.append(line2);
-                if (line1 != line2) {
-                    string exclamation_marks = string.nfill(3, '!');
-                    result.append(@"$exclamation_marks\n");
-                    result.append("String before !!! is different");
-                    this.error_lines.append(line_number);
+                line1 = line1.make_valid(line1.length);
+                size_t bread = 0;
+                size_t bwritten = 0; 
+                var buf = line2.locale_to_utf8(line2.length, out bread, out bwritten, null);
+                if(buf == null){
+                    buf = line2.make_valid(line2.length);
                 }
+                    if (error_append){
+                        result_file_2.append("\n" + buf + "\n");
+                        error_append = false;
+                    } else { result_file_2.append(buf + "\n"); }
+                    
+                if (line1 != line2) {
+                    result_file_2.append("String before is different");
+                    error_append = true;
+                    error_lines.append(line_number);
+                }
+
                 line_number++;
+                line1 = file1_stream.read_line();
+                line2 = file2_stream.read_line();
+                if(line1 == null && line2 == null){    
+                    break;
+                }
             }
-        } catch (Error e) {
-            result.append(@"File read error zzz: $(e.message)\n");
-        }
-    
-        return result.str;
+            string line3;
+            file1_stream.close();
+            file1_stream = new DataInputStream(file1.read());
+            while ((line3 = file1_stream.read_line()) != null) {
+                line3 = line3.make_valid(line3.length);
+                result_file_1.append(line3 + "\n");
+            }
+            } catch (Error e) {
+                result_file_1.append(@"File read error zzz: $(e.message)\n");
+                result_file_2.append(@"File read error zzz: $(e.message)\n");
+            }
+        return {result_file_1.str,result_file_2.str};
     }
 }
 }
