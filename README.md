@@ -1,4 +1,4 @@
-![изображение](https://github.com/user-attachments/assets/a8a43f6f-d022-48e8-a27a-2fdd2dea98f7)**catching-bad-files**
+**catching-bad-files**
 
 util for comparing files which can be bad (damaged). firstly comparing by md5 hash sum, and after that you can see the damaged places, strings
 
