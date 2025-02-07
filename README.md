@@ -1,4 +1,4 @@
-**catching-bad-files**
+![изображение](https://github.com/user-attachments/assets/a8a43f6f-d022-48e8-a27a-2fdd2dea98f7)**catching-bad-files**
 
 util for comparing files which can be bad (damaged). firstly comparing by md5 hash sum, and after that you can see the damaged places, strings
 
@@ -68,3 +68,12 @@ to use write in console:
 Click button Open initial directory and choose serviceable directory, click button Open bad directory and choose directory that you think is damaged. After that press button Start compare. Programm will print list of paths, red ones - damaged. Click on red button to see the initial and damaged file, in first string you would see the numbers of lines with error. Visit this lines to see the difference.
 
 In addition to the application, a log is generated in the folder with the binary
+
+
+**screenshots**
+![изображение](https://github.com/user-attachments/assets/75db81f2-4a65-44a7-bc14-8d0c9790f0df)
+![изображение](https://github.com/user-attachments/assets/409cddae-4af0-49e1-9886-e26af52626d8)
+![изображение](https://github.com/user-attachments/assets/45bff39b-7d53-4a9a-a6c5-18ce43f1422a)
+![изображение](https://github.com/user-attachments/assets/80fb9b0b-a28b-4686-a692-d94e03270856)
+
+
