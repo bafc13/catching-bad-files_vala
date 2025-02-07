@@ -21,7 +21,7 @@ namespace FileIntegrityChecker {
                 GLib.Dir opened_directory1 = GLib.Dir.open(directory1, 0);
                 GLib.Dir opened_directory2 = GLib.Dir.open(directory2, 0);
                 if (opened_directory1 != null && opened_directory2 != null){
-                    traverse_directory(directory1, 0);
+                    traverse_directory(directory1, 0); //getting the file paths
                     traverse_directory(directory2, 1);
                 }
                 int index = 0;
@@ -41,7 +41,7 @@ namespace FileIntegrityChecker {
 
 
 
-        public void traverse_directory(string path, int num) {
+        public void traverse_directory(string path, int num) { //getting the file paths
             try {
                 var dir = GLib.Dir.open(path);
                 string? entry;
@@ -58,7 +58,7 @@ namespace FileIntegrityChecker {
                     }
         
                     if (GLib.FileUtils.test(full_path, GLib.FileTest.IS_DIR)) {
-                        traverse_directory(full_path , num);
+                        traverse_directory(full_path , num); //if dir inside - getting this dir paths
                     }
                 }
             } catch (Error e) {
@@ -112,7 +112,7 @@ namespace FileIntegrityChecker {
     public class FileUtils : Object {
         public List<int> error_lines = new List<int>();
 
-        public static string calculate_checksum(string file_path) {
+        public static string calculate_checksum(string file_path) { //md5 hash sum calculate
             var checksum = new Checksum(GLib.ChecksumType.MD5);
             string md5_sum;
             try{

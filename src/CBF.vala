@@ -1,10 +1,10 @@
 
 public class CBF : Gtk.Application {
-    private Gtk.TextView text_view;
-    private Gtk.TextView text_view1;
+    private Gtk.TextView text_view; //error file viewer
+    private Gtk.TextView text_view1; //initial file viewer
     private Gtk.ApplicationWindow window;
-    private Gtk.Label line_number_label;
-    private Gtk.Box vbox_for_files;
+    private Gtk.Label line_number_label; //file lines
+    private Gtk.Box vbox_for_files; 
     private string dir1_path;
     private string dir2_path;
     public List<string> dir1_files_list;
@@ -63,7 +63,7 @@ public class CBF : Gtk.Application {
         toolbar.append (start_compare_button);
 
         
-        var scroll_view = new Gtk.ScrolledWindow () {
+        var scroll_view = new Gtk.ScrolledWindow () { //compare result viewer
             hscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vscrollbar_policy = Gtk.PolicyType.AUTOMATIC,
             vexpand = true,
@@ -121,7 +121,7 @@ public class CBF : Gtk.Application {
                 comparator.compare_directories(); //compare dir`s
                 this.dir2_files_list = new List<string>();
                 foreach (var item in comparator.dir2_files_list){
-                    dir2_files_list.append (item); //dir2_files_list
+                    dir2_files_list.append (item); 
                 }
 
                 List<int> error_files_indexes = new List<int>();
@@ -144,7 +144,7 @@ public class CBF : Gtk.Application {
                 int temp_index = 0;
                 foreach(var temp_file in dir2_files_list){
 
-                    var button = new Gtk.Button.with_label (temp_file){
+                    var button = new Gtk.Button.with_label (temp_file){ //button for open files
                         valign = Gtk.Align.BASELINE_CENTER
                     };
                     if(error_files_indexes.find (temp_index) != null){
@@ -169,7 +169,7 @@ public class CBF : Gtk.Application {
 
 
 
-        private void create_window_with_file_contents(string file){
+        private void create_window_with_file_contents(string file){ //open file
             FileIntegrityChecker.FileUtils fileutil = new FileIntegrityChecker.FileUtils();
             this.dir1_files_list = new List<string>();
                 foreach (var item in comparator.dir1_files_list){
@@ -178,7 +178,7 @@ public class CBF : Gtk.Application {
 
             string initial_file = "";
                 string source_filename = File.new_for_path(file).get_basename();
-                foreach (string target_path in dir1_files_list) {
+                foreach (string target_path in dir1_files_list) { //foreach to get second dir
                     string target_filename = File.new_for_path(target_path).get_basename();
                     if (source_filename == target_filename) {
                         initial_file = target_path;
@@ -203,12 +203,12 @@ public class CBF : Gtk.Application {
             var hbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 5);
             scrolled_window.set_child(hbox);
 
-            text_view = new Gtk.TextView();
+            text_view = new Gtk.TextView(); //error file
             text_view.hexpand = true;
             text_view.editable = false;
             text_view.buffer.changed.connect(() => update_line_numbers());
 
-            text_view1 = new Gtk.TextView();
+            text_view1 = new Gtk.TextView(); //initial file
             text_view1.hexpand = true;
             text_view1.editable = false;
             text_view1.buffer.changed.connect(() => update_line_numbers());
@@ -239,7 +239,7 @@ public class CBF : Gtk.Application {
             new_window.present();
         }
 
-        private void update_line_numbers(){
+        private void update_line_numbers(){ //init line number`s
             var line_count = text_view.buffer.get_line_count();
             var numbers = new StringBuilder();
             for (int i = 0; i <= line_count; i++) {
